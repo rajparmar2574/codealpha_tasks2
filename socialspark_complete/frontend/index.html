@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SocialSpark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ═══════════ AUTH OVERLAY ═══════════ -->
+<div id="auth-overlay" class="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-icon">✦</div>
+      <h1>SocialSpark</h1>
+      <p>Share your world with people who matter</p>
+    </div>
+
+    <div id="login-form" class="auth-form active">
+      <h2>Welcome back</h2>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="your_username" autocomplete="username"
+               onkeydown="if(event.key==='Enter') login()" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') login()" />
+      </div>
+      <div id="login-error" class="form-error"></div>
+      <button class="btn-primary full" onclick="login()">Sign In</button>
+      <p class="auth-switch">No account? <a onclick="switchAuth('register')">Create one →</a></p>
+    </div>
+
+    <div id="register-form" class="auth-form">
+      <h2>Join SocialSpark</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="reg-firstname" placeholder="First Name" />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="reg-lastname" placeholder="Last Name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="Username" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="Email" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" placeholder="Min 6 chars" />
+        </div>
+        <div class="form-group">
+          <label>Confirm</label>
+          <input type="password" id="reg-password2" placeholder="Repeat" />
+        </div>
+      </div>
+      <div id="reg-error" class="form-error"></div>
+      <button class="btn-primary full" onclick="register()">Create Account</button>
+      <p class="auth-switch">Already a member? <a onclick="switchAuth('login')">Sign in →</a></p>
+    </div>
+  </div>
+
+  <div class="auth-visual">
+    <div class="visual-pattern"></div>
+    <div class="visual-content">
+      <div class="visual-badges">
+        <span class="badge">✦ Posts</span>
+        <span class="badge coral">♥ Likes</span>
+        <span class="badge">💬 Comments</span>
+        <span class="badge amber">👥 Follow</span>
+      </div>
+      <blockquote>"The world is better when we share it."</blockquote>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN APP ═══════════ -->
+<div id="app" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">✦</span>
+      <span class="brand-name">SocialSpark</span>
+    </div>
+
+    <ul class="nav-links">
+      <li>
+        <a class="nav-link active" onclick="showPage('feed')" data-page="feed">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" onclick="showPage('explore')" data-page="explore">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Explore</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link notif-nav" onclick="showPage('notifications')" data-page="notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span>Notifications</span>
+          <span id="notif-badge" class="notif-badge hidden">0</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" onclick="showPage('profile')" data-page="profile">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-user" id="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+      <div class="sidebar-info">
+        <div class="sidebar-name" id="sidebar-name">Loading...</div>
+        <div class="sidebar-handle" id="sidebar-handle">@...</div>
+      </div>
+      <button class="btn-logout" onclick="logout()" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- FEED -->
+    <div id="page-feed" class="page active">
+      <div class="page-header">
+        <h2>Your Feed</h2>
+        <div class="feed-tabs">
+          <button class="tab-btn active" onclick="switchFeed('all', this)">All Posts</button>
+          <button class="tab-btn" onclick="switchFeed('following', this)">Following</button>
+        </div>
+      </div>
+      <div class="create-post-card">
+        <div class="create-post-avatar" id="create-avatar">?</div>
+        <div class="create-post-input" onclick="openPostModal()">What's on your mind?</div>
+        <button class="btn-post" onclick="openPostModal()">
+          <svg viewBox="0 0 24 24" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Post
+        </button>
+      </div>
+      <div id="posts-container" class="posts-container">
+        <div class="loading-spinner">Loading posts…</div>
+      </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div id="page-explore" class="page">
+      <div class="page-header"><h2>Explore People</h2></div>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="Search by username…" oninput="searchUsers(this.value)" />
+      </div>
+      <div id="users-container" class="users-grid">
+        <div class="loading-spinner">Loading users…</div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="page-notifications" class="page">
+      <div class="page-header">
+        <h2>Notifications</h2>
+        <button class="btn-secondary small" onclick="markAllRead()">Mark all read</button>
+      </div>
+      <div id="notif-container" class="notif-list">
+        <div class="loading-spinner">Loading…</div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page">
+      <div id="profile-content">
+        <div class="loading-spinner">Loading profile…</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="panel-section">
+      <h3>Who to follow</h3>
+      <div id="suggestions-list" class="suggestions-list">
+        <div class="loading-spinner small">Loading…</div>
+      </div>
+    </div>
+    <div class="panel-section" style="margin-top:1.5rem">
+      <h3>Trending</h3>
+      <div class="trending-list">
+        <div class="trending-item">#photography</div>
+        <div class="trending-item">#design</div>
+        <div class="trending-item">#technology</div>
+        <div class="trending-item">#travel</div>
+        <div class="trending-item">#food</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ═══════════ CREATE POST MODAL ═══════════ -->
+<div id="post-modal" class="modal-overlay hidden" onclick="closePostModal(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create Post</h3>
+      <button class="modal-close" onclick="closePostModal()">✕</button>
+    </div>
+    <div class="post-compose-header">
+      <div class="create-post-avatar medium" id="modal-avatar">?</div>
+      <div>
+        <div class="compose-name" id="modal-name">—</div>
+        <div class="compose-handle" id="modal-handle">—</div>
+      </div>
+    </div>
+    <textarea id="post-content" placeholder="What's happening? Share your thoughts…" maxlength="500"></textarea>
+    <div class="compose-footer">
+      <label class="attach-btn" for="post-image-input" title="Attach image">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Photo
+      </label>
+      <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="previewPostImage(event)" />
+      <span class="char-count"><span id="char-used">0</span>/500</span>
+      <div style="flex:1"></div>
+      <button class="btn-secondary" onclick="closePostModal()">Cancel</button>
+      <button class="btn-primary" onclick="createPost()">Publish</button>
+    </div>
+    <div id="post-image-preview" class="image-preview hidden">
+      <img id="post-img-thumb" src="" alt="preview" />
+      <button class="remove-img" onclick="removePostImage()">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COMMENTS MODAL ═══════════ -->
+<div id="comments-modal" class="modal-overlay hidden" onclick="closeCommentsModal(event)">
+  <div class="modal-card comments-modal-card">
+    <div class="modal-header">
+      <h3>Comments</h3>
+      <button class="modal-close" onclick="closeCommentsModal()">✕</button>
+    </div>
+    <div id="comments-list" class="comments-list">
+      <div class="loading-spinner">Loading…</div>
+    </div>
+    <div class="comment-input-row">
+      <div class="create-post-avatar small" id="comment-avatar">?</div>
+      <input type="text" id="comment-input" placeholder="Write a comment…"
+             onkeydown="if(event.key==='Enter') submitComment()" maxlength="300" />
+      <button class="btn-primary small" onclick="submitComment()">
+        <svg viewBox="0 0 24 24" width="14" height="14"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FOLLOWERS MODAL ═══════════ -->
+<div id="followers-modal" class="modal-overlay hidden" onclick="closeFollowersModal(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="followers-modal-title">Followers</h3>
+      <button class="modal-close" onclick="closeFollowersModal()">✕</button>
+    </div>
+    <div id="followers-list" class="follow-list">
+      <div class="loading-spinner">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
